@@ -3,6 +3,7 @@
 import { init, tx, id } from '@instantdb/react'
 
 import randomHandle from './utils/randomHandle'
+import { useRef } from 'react'
 
 // ---------
 // Helpers
@@ -45,6 +46,7 @@ const db = init<Schema>({ appId: APP_ID })
 function App() {
   // Read from InstantDB
   const { isLoading, error, data } = db.useQuery({ messages: {} })
+  const inputRef = useRef(null)
 
   if (isLoading) {
     return <div>Fetching data...</div>
@@ -54,11 +56,15 @@ function App() {
   }
   const { messages } = data
 
+  const onSubmit = () => {
+    addMessage(inputRef.current.value, handle)
+    inputRef.current.value = ''
+    inputRef.current.focus()
+  }
   const onKeyDown = (e: any) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      addMessage(e.target.value, handle)
-      e.target.value = ''
+      e.preventDefault()
+      onSubmit()
     }
   };
 
@@ -66,17 +72,22 @@ function App() {
     <div className='p-4 space-y-6 w-full sm:w-[640px] mx-auto'>
       <h1 className='text-2xl font-bold'>Logged in as: {handle}</h1>
       <div className="flex flex-col space-y-2">
-        <div className="flex justify-between  border-b-2 border-b-gray-500 pb-2 space-x-2">
+        <div className="flex justify-between border-b border-b-gray-500 pb-2 space-x-2">
           <div className="flex flex-1" >
             <input
-              className="flex-1 px-2 py-1"
+              ref={inputRef}
+              className="flex-1 py-1 px-2"
               autoFocus
               placeholder="Enter some message..."
               onKeyDown={onKeyDown}
               type="text"
             />
           </div>
-          <Button onClick={() => deleteAllMessages(messages)}>Delete All</Button>
+          <Button onClick={onSubmit}>Submit</Button>
+
+        </div>
+        <div className="truncate text-xs text-gray-500">
+          (TODO): Replace me with a typing indicator!
         </div>
       </div>
 
@@ -92,7 +103,8 @@ function App() {
           </div>
         ))}
       </div>
-      <div>(TODO): Who's online: </div>
+      <div className="border-b border-b-gray-300 pb-2">(TODO): Who's online: </div>
+      <Button onClick={() => deleteAllMessages(messages)}>Delete All</Button>
     </div>
   )
 }
