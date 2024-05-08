@@ -26,7 +26,7 @@ const handle = randomHandle()
 // ---------
 
 // Replace this with your own App ID from https://instantdb.com/dash
-const APP_ID = '11920699-e06d-4d77-87a3-0767b7cfa604'
+const APP_ID = 'REPLACE ME'
 
 type Message = {
   id: string
