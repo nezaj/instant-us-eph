@@ -3,7 +3,7 @@
 import { init, tx, id } from '@instantdb/react'
 
 import randomHandle from './utils/randomHandle'
-import { useRef } from 'react'
+import { useState, useRef } from 'react'
 
 // ---------
 // Helpers
@@ -11,7 +11,7 @@ import { useRef } from 'react'
 function Button({ children, onClick }) {
   return (
     <button
-      className="px-2 py-1 outline hover:bg-gray-200"
+      className="px-2 py-1 outline hover:bg-gray-200 focus:outline-amber-500 focus:outline-2"
       onClick={onClick}
     >
       {children}
@@ -26,7 +26,7 @@ const handle = randomHandle()
 // ---------
 
 // Replace this with your own App ID from https://instantdb.com/dash
-const APP_ID = 'REPLACE_ME'
+const APP_ID = '11920699-e06d-4d77-87a3-0767b7cfa604'
 
 type Message = {
   id: string
@@ -47,6 +47,7 @@ function App() {
   // Read from InstantDB
   const { isLoading, error, data } = db.useQuery({ messages: {} })
   const inputRef = useRef(null)
+  const [editId, setEditId] = useState(null)
 
   if (isLoading) {
     return <div>Fetching data...</div>
@@ -76,7 +77,7 @@ function App() {
           <div className="flex flex-1" >
             <input
               ref={inputRef}
-              className="flex-1 py-1 px-2"
+              className="flex-1 py-1 px-2 focus:outline-2 focus:outline-amber-500"
               autoFocus
               placeholder="Enter some message..."
               onKeyDown={onKeyDown}
@@ -87,23 +88,44 @@ function App() {
 
         </div>
         <div className="truncate text-xs text-gray-500">
-          (TODO): Replace me with a typing indicator!
+          (TODO) Replace me with a typing indicator!
         </div>
       </div>
 
       <div className="space-y-2">
         {messages.map((message) => (
           <div key={message.id}>
-            <div className="flex justify-between">
-              <p>{message.handle}: {message.text}</p>
-              <span className="space-x-4">
-                <Button onClick={() => deleteMessage(message)}>Delete</Button>
-              </span>
-            </div>
+            {editId === message.id ? (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  db.transact(
+                    tx.message[message.id].update({
+                      text: e.target[0].value,
+                    })
+                  )
+                  setEditId(null)
+                }}
+              >
+                <input
+                  defaultValue={message.text}
+                  autoFocus
+                  type="text"
+                />
+              </form>
+            ) : (
+              <div className="flex justify-between">
+                <p>{message.handle}: {message.text}</p>
+                <span className="space-x-4">
+                  <Button onClick={() => setEditId(message.id)}>Edit</Button>
+                  <Button onClick={() => deleteMessage(message)}>Delete</Button>
+                </span>
+              </div>
+            )}
           </div>
         ))}
       </div>
-      <div className="border-b border-b-gray-300 pb-2">(TODO): Who's online: </div>
+      <div className="border-b border-b-gray-300 pb-2">(TODO) Who's online:</div>
       <Button onClick={() => deleteAllMessages(messages)}>Delete All</Button>
     </div>
   )
