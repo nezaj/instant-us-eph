@@ -38,7 +38,7 @@ function App() {
     return <div>Fetching data...</div>
   }
   if (error) {
-    return <div className='p-2 font-mono'>Invalid `APP_ID`. Go to <a href="https://instantdb.com/dash" className='underline text-blue-500'>https://instantdb.com/dash</a> to get a new `APP_ID`</div>
+    return <div className='p-2 font-mono'>{JSON.stringify(error, null, 2)}</div>
   }
   const { messages } = data
 
