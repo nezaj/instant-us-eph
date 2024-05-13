@@ -1,8 +1,7 @@
 'use client'
 
-import { init, tx, id } from '@instantdb/react'
+import { init } from '@instantdb/react'
 
-import randomHandle from './utils/randomHandle'
 import { useState, useRef } from 'react'
 
 // ---------
@@ -19,8 +18,6 @@ function Button({ children, onClick }) {
   )
 }
 
-const handle = randomHandle()
-
 // ---------
 // App
 // ---------
@@ -28,20 +25,8 @@ const handle = randomHandle()
 // Replace this with your own App ID from https://instantdb.com/dash
 const APP_ID = 'REPLACE_ME'
 
-type Message = {
-  id: string
-  text: string
-  handle: string
-  createdAt: number
-}
-
-// Define InstantDB schema
-type Schema = {
-  messages: Message
-}
-
 // Initialize connection to InstantDB app
-const db = init<Schema>({ appId: APP_ID })
+const db = init({ appId: APP_ID })
 
 function App() {
   // Read from InstantDB
@@ -58,10 +43,9 @@ function App() {
   const { messages } = data
 
   const onSubmit = () => {
-    addMessage(inputRef.current.value, handle)
-    inputRef.current.value = ''
-    inputRef.current.focus()
+    console.log("(TODO): Add message")
   }
+
   const onKeyDown = (e: any) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -71,7 +55,7 @@ function App() {
 
   return (
     <div className='p-4 space-y-6 w-full sm:w-[640px] mx-auto'>
-      <h1 className='text-2xl font-bold'>Logged in as: {handle}</h1>
+      <h1 className='text-2xl font-bold'>Logged in as: (TODO) Implement auth</h1>
       <div className="flex flex-col space-y-2">
         <div className="flex justify-between border-b border-b-gray-500 pb-2 space-x-2">
           <div className="flex flex-1" >
@@ -99,11 +83,7 @@ function App() {
               <form
                 onSubmit={(e) => {
                   e.preventDefault()
-                  db.transact(
-                    tx.message[message.id].update({
-                      text: e.target[0].value,
-                    })
-                  )
+                  console.log("(TODO) Implement update message")
                   setEditId(null)
                 }}
               >
@@ -115,10 +95,10 @@ function App() {
               </form>
             ) : (
               <div className="flex justify-between">
-                <p>{message.handle}: {message.text}</p>
+                <p>(TODO) Show message author: {message.text}</p>
                 <span className="space-x-4">
                   <Button onClick={() => setEditId(message.id)}>Edit</Button>
-                  <Button onClick={() => deleteMessage(message)}>Delete</Button>
+                  <Button onClick={() => console.log("(TODO) Implement delete message")}>Delete</Button>
                 </span>
               </div>
             )}
@@ -126,30 +106,9 @@ function App() {
         ))}
       </div>
       <div className="border-b border-b-gray-300 pb-2">(TODO) Who's online:</div>
-      <Button onClick={() => deleteAllMessages(messages)}>Delete All</Button>
+      <Button onClick={() => console.log("(TODO) Implement delete all")}>Delete All</Button>
     </div>
   )
-}
-
-// Write to InstantDB
-// ---------
-function addMessage(text: string, handle: string) {
-  db.transact(
-    tx.messages[id()].update({
-      text,
-      handle,
-      createdAt: Date.now(),
-    })
-  )
-}
-
-function deleteMessage(message: Message) {
-  db.transact(tx.message[message.id].delete())
-}
-
-function deleteAllMessages(messages: Message[]) {
-  const txs = messages.map((message) => tx.message[message.id].delete())
-  db.transact(txs)
 }
 
 export default App
